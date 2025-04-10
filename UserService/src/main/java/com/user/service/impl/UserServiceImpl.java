@@ -15,6 +15,7 @@ import com.user.service.entities.Hotel;
 import com.user.service.entities.Rating;
 import com.user.service.entities.User;
 import com.user.service.exception.ResourceNotFoundException;
+import com.user.service.external.HotelService;
 import com.user.service.services.UserServices;
 
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,12 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl  implements UserServices{
 
     private final UserRepository userRepository;
-
+//it is for communication the services
     private final RestTemplate restTemplate;
+
+
+//this is using ferin client
+    private final HotelService hotelService;
 
     @Override
     public User saveUser(User user) {
@@ -44,14 +49,17 @@ public class UserServiceImpl  implements UserServices{
         Optional<User> opt = userRepository.findById(id);
         if (opt.isPresent()) {
             //fetch rating of the user
-            Rating[] forObject  = restTemplate.getForObject("http://localhost:8081/rating/allByUserId/"+id,Rating[] .class);
+            Rating[] forObject  = restTemplate.getForObject("http://RATING-SERVICE/rating/allByUserId/"+id,Rating[] .class);
 
             List<Rating> ratings= Arrays.stream(forObject).toList();
           
 
             List<Rating> ratingList=ratings.stream().map(rating->{
-                ResponseEntity<Hotel> forEntity=restTemplate.getForEntity("http://localhost:8082/hotel/single/"+ rating.getHotelId(), Hotel.class);
-                Hotel hotel= forEntity.getBody();
+
+                // ResponseEntity<Hotel> forEntity=restTemplate.getForEntity("http://HOTELSERVICE/hotel/single/"+ rating.getHotelId(), Hotel.class);
+                // Hotel hotel= forEntity.getBody();
+
+                Hotel hotel=hotelService.getHotel(rating.getHotelId());
                 System.out.println(hotel.toString());
                 rating.setHotel(hotel);
                 return rating;
