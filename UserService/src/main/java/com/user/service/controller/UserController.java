@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/")
+@RequestMapping("/user")
 public class UserController {
 
     private final UserServices userServices;
